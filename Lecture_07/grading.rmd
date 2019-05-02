@@ -1,0 +1,47 @@
+---
+title: "Grading_Homeworks"
+author: "Matt Demelo"
+date: "4/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## A function to grade homework assignments
+
+First we start with two student grade vectors:
+
+```{r}
+s1 <- c(100, 100, 100, 100, 100, 100, 100, 90)
+s2 <- c(100, 90, 90, 90, 90, 90, 97, 80)
+```
+
+Now we try to drop their lowest grades, trying with student 1 first:
+
+```{r}
+mins1 = min(s1)
+s1adj = s1[(s1 != mins1)]
+s1adj
+```
+
+```{r}
+newgrade <- function(stdt1, stdt2){
+  mins1 = min(stdt1)
+  mins2 = min(stdt2)
+  
+  s1adj = stdt1[(stdt1 != mins1)]
+  s2adj = stdt2[(stdt2 != mins2)]
+  
+  mean(s1adj,s2adj)
+}
+  
+```
+
+```{r}
+grade1 <- function(s1,s2){
+  sum min length!
+}
+```
+
