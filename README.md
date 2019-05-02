@@ -2,4 +2,4 @@
 Spring '19 Bioinformatics Lab course at UC San Diego
 
 
-This repository contains my coursework for [Spring '19 Bioinformatics Lab course at UC San Diego (BIMM 143)]
+This repository contains my coursework for [Spring '19 Bioinformatics Lab course at UC San Diego (BIMM 143)](https://bioboot.github.io/bimm143_S19/).
