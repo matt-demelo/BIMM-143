@@ -1,0 +1,225 @@
+---
+title: 'Lecture07: R Functions and Packages'
+author: "Matt Demelo"
+date: "4/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Functions Revisited
+
+We will source a file from online with our functions from last lecture (06).
+
+```{r}
+source("http://tinyurl.com/rescale-R")
+```
+
+Try out the last day's rescale() function:
+
+```{r}
+rescale(1:10)
+```
+
+```{r}
+# rescale2(c(2,3,"String"))
+```
+This will give an error.
+
+
+# Find missing NA values in 2 vectors:
+
+A function to count the number of missing value/"NA"s occuring in the same spot in two vectors
+
+```{r}
+x <- c(1, 2, NA, 3, NA)
+y <- c(NA, 3, NA, 3, 4)
+
+# The answer would be 1 here, but we want R to figure that out for us.
+```
+
+The function is.na() will tell us whether a variable is an NA
+
+```{r}
+is.na(x)
+```
+
+```{r}
+is.na(y)
+```
+
+
+Try putting these together with an AND statement, and we get a boolean vector
+
+```{r}
+is.na(x) & is.na(y)
+```
+
+Take the sum() of the boolean vector to get the number of TRUEs (same as 1) which is the number of positions where the value is NA in both vectors.
+
+```{r}
+sum(is.na(x) & is.na(y))
+```
+
+How could this be adapted into a function?
+
+```{r}
+both_na <- function(vec1, vec2) {
+  sum(is.na(vec1) & is.na(vec2))
+}
+```
+
+Here is the functional output with an example.
+
+```{r}
+both_na(x,c(NA,3,NA,2,NA))
+```
+
+```{r}
+xtest <- c(NA, NA, NA)
+y1 <- c(1, NA, NA)
+y2 <- c(1, NA, NA, NA)
+```
+
+```{r}
+both_na(xtest,y2)
+```
+
+How did this happen? Let's check a nother case
+
+```{r}
+y3 <- c(1, NA, NA, NA, NA, NA, NA, NA)
+both_na(xtest, y3)
+```
+
+The issue is that the function is recycling the shorter vector to match the longer vector.
+
+```{r}
+3 != 2
+```
+
+```{r}
+length(xtest)
+```
+
+```{r}
+length(y2)
+```
+
+Now lets build a both_na2 function which will check for matching vector length
+
+```{r}
+both_na2 <- function(vec1, vec2) {
+  
+  if(length(vec1) != length(vec2)){
+    stop("Hey dungus, these vectors aren't the same length!")
+  }
+   
+  sum(is.na(vec1) & is.na(vec2))
+}
+```
+
+```{r}
+# both_na2(xtest,y3)
+```
+An error is generated
+
+```{r}
+which(c(F,F,T,F,T))
+
+#which(is.na(c(1, 2, NA, 4)))
+```
+
+
+```{r}
+x <- c(1, 2, NA, 3, NA)
+y <- c(NA, 3, NA, 3, 4)
+
+both_na3(x,y)
+```
+
+## Intersect Function: Looking at genes
+
+```{r}
+df1
+```
+
+```{r}
+df2
+```
+
+
+Make things simpler
+
+
+```{r}
+x <- df1$IDs
+y <- df2$IDs
+x
+y
+```
+
+
+```{r}
+intersect(x,y)
+```
+
+```{r}
+x %in% y
+```
+
+z
+```{r}
+which(x %in% y)
+```
+
+```{r}
+x[x %in% y]
+```
+
+```{r}
+
+```
+
+```{r}
+cbind(x[x %in% y],
+      y[y %in% x] )
+
+```
+
+Using Code -> Extract Function shortcut in toolbar at top, we turned this code into a function
+
+```{r}
+gene_intersect <- function(x, y) {
+  cbind( x[ x %in% y ], 
+         y[ y %in% x ] )
+}
+```
+
+```{r}
+gene_intersect(df1$IDs, df2$IDs)
+```
+
+
+```{r}
+gene_intersect2(df1,df2)
+```
+
+`
+
+```{r}
+gene_intersect3(df1,df2)
+```
+
+```{r}
+gene_intersect4(df1,df2)
+```
+
+
+
+
+
+
+

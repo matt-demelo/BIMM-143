@@ -1,0 +1,80 @@
+---
+title: "Optimizing Protein-Drug Interaction Analysis - Lec06 HW"
+author: "Matt Demelo"
+date: "4/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Function and Optimization Practice
+
+### Below is a function optimizing the operations performed in Q6 of the Lecture 06 hands-on activity:
+
+```{r}
+# pdbdrug Function
+
+# Generalized function for plotting B-factor of amino acid residues in specific protein structures, utilizing the bio3d package. This function takes a PDB number of a protein structure and uses that protein structure's structural data to generate a plot. Additional arguments are listed to specify chain, elety, and the title of the resultant plot. 
+
+# To use this function, simply use an existing PDB number as a string argument. Other arguments can be left default or specified as desired. 
+
+# The output of this function is two strings which verify 1) The PDB number is valid and its data can be extracted, and 2) That the data.frame of structural data has been trimmed to the region of interest, and that the B-factor data has been indexed properly; most importantly, a line plot of the B-factor vs. Residue in the protein structure.
+
+# e.g. pdbdrug("4BAE", plottitle = "Test Run")
+  
+# ARGUMENTS
+  # pdnum: PDB number of a given protein structure, a string input.
+  # chn = The chain we would like to study, a character input.
+  # elt = The elety we are interested in, a string input.
+  # plottitle = The title of the B-factor vs. Residue Plot, a string input.
+
+pdbdrug <- function(pdbnum, chn = "A", elt = "CA", plottitle = "B-factor vs. Residue Plot"){
+  
+  library("bio3d") 
+  # Activates bio3d package
+  
+  pdbstruc= read.pdb(pdbnum)
+  # Reads PDB number input and constructs a dataframe of structural data. 
+  # See the read.pdb function documentation for more information.
+  
+  print("Valid PDB#. PDB Structure data imported.") 
+  # Verifies that the PDB number is valid and import was successful. 
+  
+  trimstruc <- trim.pdb(pdbstruc, chain = chn, elety = elt) 
+  # "Trims" the structural data data.frame to a region of interest
+  
+  bfac <- trimstruc$atom$b 
+  # Indexes into atom matrix and indexes the bfactor column (b)
+  
+  print("Structure data trimmed, B-factor data indexed. Generating plot...") 
+  # Checks that trimstruc and bfac have been constructed properly/without error.
+  
+  plotb3(bfac, sse = trimstruc, typ = "l", main = plottitle, ylab = "Bfactor") 
+  # Plots the B-factor of a given residue for each residue in the trimmed structure.
+  
+}
+```
+
+Running the code, we see that the arguments we need to give are far less complicated. Further, due to the way the function is structured, different arguments can be given for chain and elety, depending on our interests.
+
+```{r}
+
+pdbdrug("4AKE", plottitle = "Kinase w/ Drug (4AKE)")
+
+pdbdrug("1AKE", plottitle = "Kinase w/ out Drug (1AKE)")
+
+pdbdrug("1E4Y", plottitle = "Kinase w/ Drug (1E4Y)")
+
+```
+
+A unique plot is generated for each PDB# input, with our custom plot title. Doing this, we've made this process reproducible and cut down on the opportunity for error from "copy and paste" coding of repetitive operations. This also makes it much clearer what the operation is actually doing, with proper comments and variable names.
+
+
+
+
+
+
+
+
