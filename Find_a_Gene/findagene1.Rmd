@@ -1,0 +1,12 @@
+---
+title: "Find A Gene - Part 1"
+author: "Matt Demelo"
+date: "5/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1: Q1 - Q4
