@@ -1,0 +1,83 @@
+---
+title: 'Lec12: Structural Bioinformatics (Pt2)'
+author: "Matt Demelo"
+date: "5/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup for Docking
+
+We will first repare our HIV-Pr system for drug docking by creating a protein only PDB format file (i.e. we will remove water, existing ligands, etc.)
+
+```{r}
+# First we load in the bio3d package and use it to import the relevant structural
+# data.
+library(bio3d)
+file <- get.pdb("1hsg")
+```
+
+```{r}
+# Now we read the .pdb file into a Data.Frame of structural data.
+
+pdb <- read.pdb(file)
+pdb
+```
+
+```{r}
+prot <- atom.select(pdb, "protein", value = T)
+write.pdb(prot, file = "1hsg_protein.pdb")
+prot
+```
+
+```{r}
+lig <- atom.select(pdb, "ligand", value = T)
+write.pdb(lig, file = "1hsg_ligand.pdb")
+lig
+```
+
+Q1: HOH and MK1, they can be seen in the output of these files.
+
+Q2: Yes, it is a pocket in the center of the structure. It might not be necessary to visualize hydrogen atoms in a structure, since it can be assumed that they are there. (Or perhaps they cannot be visualized in a crystallograph, and must be added in after)
+
+Q3: These charges makes sense, since amino acids are typically partially charged, and many of the atoms carry a charge close to 0.5 +/-.
+
+## Observing Results with VMD
+
+Now we prepare our results from our autodock analysis
+```{r}
+library(bio3d)
+
+res <- read.pdb("all.pdbqt", multi=TRUE) # Data.frame of vina-derived data.
+write.pdb(res, "results.pdb") # Writes results into new pdb file.
+
+```
+
+Q4: The docking appears to fit well with the model of docking scene in the crystal structure, as all of the autodock produced docks are within the same region of the protein. The positioning of the ligand is different however, and only a few of the docks fit with the same exact positioning and orientation as the crystal dock.
+
+Now we run a quantitative analysis of our docking data:
+
+```{r}
+ori <- read.pdb("ligand.pdbqt")
+rmsd(ori, res) # root means squared differences of crystal docking vs. autdock.
+```
+
+Q5) It is obvious now that the ligand binding is best in the 1st autodock model, since it has a very low RMSD relative to the others. The only autodock dock to produce a <= 1 Angstrom RMSD from the crystal mode is the first. All others have larger RMSD's.
+
+Q6) Using a conditional statement where we select for atoms that are not hydrogen
+e.g. atom.select()
+
+
+## NMA for Flexibility Prediction
+
+Now we look at more complex situation using NMA.
+
+```{r}
+pdb <- read.pdb("1hel")
+modes <- nma( pdb )
+m7 <- mktrj(modes, mode=7, file="mode_7.pdb")
+```
+
