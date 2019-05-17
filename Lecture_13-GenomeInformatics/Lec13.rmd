@@ -1,0 +1,121 @@
+---
+title: "Lecture 13 - Genome Informatics"
+author: "Matt Demelo"
+date: "5/14/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Genotype data for a specific population
+
+Here we focus on the ancestry
+
+First we read our .csv of MXL asthma SNP data.
+```{r}
+# Reading the .csv into a data.frame.
+
+mxl <- read.csv("AsthmaSNP_MXL.csv")
+
+head(mxl)
+```
+
+Let's see how many individuals have each genotype:
+
+```{r}
+genos <- table(mxl$Genotype..forward.strand.)
+genos
+```
+
+And now, the proportion of each genotype:
+
+```{r}
+genos/nrow(mxl) * 100
+```
+
+## Quality Scores in FASTQ files
+
+The 4th line of a FASTQ indicates the quality score of each base called in the second line as an ASCII encoded sequence, telling us the quality of the sequence at a given position (i.e. the likelihood of how correct it is based upon the instrument)
+
+Now we look at the per base quality scores of an example sequence, using the ASCII encoding of a fastqsanger file.
+
+```{r}
+library(seqinr)
+library(gtools)
+asc(s2c("DDDDCDEDCDDDDBBDDDCC@")) - 33
+```
+
+## Population Scale Analysis
+
+Now lets examine population-level genotype diversity in these SNPs
+
+First let's read that data in:
+```{r}
+pop <- read.table("https://bioboot.github.io/bimm143_S18/class-material/rs8067378_ENSG00000172057.6.txt")
+head(pop)
+```
+
+```{r}
+summary(pop)
+```
+
+
+Now let's look into this a little bit more with the table() function:
+
+```{r}
+
+# How many individuals have each genotype?
+genopop <- table(pop$geno)
+genopop
+
+# What is the proportion of each genotype in the population?
+genopop * 100 / nrow(pop)
+```
+
+Here is a barplot describing the distribution of genotypes.
+
+```{r}
+barplot(genopop, main = "Distribution of Genotypes", col = c(4,5,3), ylim = c(0,300))
+```
+
+Now we organize the data by genotypes
+
+```{r}
+pop_aa <- pop[pop$geno == "A/A",]
+pop_ag <- pop[pop$geno == "A/G",]
+pop_gg <- pop[pop$geno == "G/G",]
+```
+
+And we summarize each again to get a sense of their distribution.
+
+```{r}
+print("A/A Genotype")
+summary(pop_aa)
+
+print("A/G Genotype")
+summary(pop_ag)
+
+print("G/G Genotype")
+summary(pop_gg)
+```
+
+Now we look at a boxplot distribution of our expression data for each genotype:
+
+```{r}
+boxplot(exp ~ geno, data = pop, col = c(4,5,3), ylab = "Gene Expression")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
