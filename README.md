@@ -32,9 +32,9 @@ This repository contains my coursework for [BIMM 143 SP19](https://bioboot.githu
 #### *Applied Bioinformatics*
     Application of R programming and use of various bioinformatic software for standard bioinformatic analyses
 
-- [**Bioinformatics for Drug Design and Discovery**(Lecture 12)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_12-DrugDesign)
+- [**Bioinformatics for Drug Design and Discovery** (Lecture 12)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_12-DrugDesign)
 
-- [**Genome Informatics and High Throughput Sequencing**(Lecture 13)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_13-GenomeInformatics)
+- [**Genome Informatics and High Throughput Sequencing** (Lecture 13)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_13-GenomeInformatics)
 
 - [**Transcriptomics and RNA-Seq (Differential Expression) Analysis** (Lecture 14)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_14-RNASeqAnalysis)
 
