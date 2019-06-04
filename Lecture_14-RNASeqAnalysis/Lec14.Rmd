@@ -1,0 +1,349 @@
+---
+title: "Lecture 14 - RNA Seq Analysis for Informatics"
+author: "Matt Demelo"
+date: "5/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Importing Data for DESeq2
+
+First, we import our RNA Seq data and metadata to data.frames:
+
+```{r}
+
+# Read scale counts into data.frame.
+counts <- read.csv("data/airway_scaledcounts.csv", 
+                                 stringsAsFactors = F)
+
+# Read meta data into data.frame.
+metadata <- read.csv("data/airway_metadata.csv",
+                            stringsAsFactors = F)
+
+```
+
+Now we examine each:
+
+```{r}
+head(counts)
+```
+
+```{r}
+head(metadata)
+```
+
+## Toy Differential Gene Expression
+**This is NOT how differental Gene Expression should be done. This exercise is purely for introducing the concept.**
+
+Let's look at metadata again:
+
+```{r}
+View(metadata)
+```
+
+Now let's try a bit of code to analyze our RNA Seq data:
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+control.mean <- rowSums( counts[ ,control$id] )/4
+names(control.mean) <- counts$ensgene
+```
+
+Q1) The code above could be made more robust but not using specific values (i.e. change the division by 4 to reflect the total # of controls). If more samples were added, this code would still return an output, but it would be wrong since the control.mean will only reflect a mean of n = 4, when n is actually higher. 
+
+Q2) Let's try this now for our treated data:
+
+```{r}
+treated <- metadata[metadata[,"dex"]=="treated",]
+treated.mean <- rowSums( counts[ ,treated$id] )/4 
+names(treated.mean) <- counts$ensgene
+```
+
+Let's combine our mean data to make things easier, and take a (crude) look at counts:
+
+
+```{r}
+meancounts <- data.frame(control.mean, treated.mean)
+colSums(meancounts)
+```
+
+*For a real workflow, you should normalize the samples for sequencing depth. Otherwise, your analysis is biased (and basically useless).*
+
+Q3) Let's show a scatterplot of our means comparing controls to treated samples:
+
+```{r}
+# Axes are assigned to make our code a little less convoluted.
+xax_toy <- meancounts$control.mean 
+yax_toy <- meancounts$treated.mean
+
+# Now we plot
+plot(xax_toy,yax_toy, main = "Toy RNASeq Analysis: Treated vs. Controls", 
+     xlab = "Controls, Mean Counts", ylab = "Treated, Mean Counts")
+```
+
+On this scale, we can't really see the full breadth of data (60k-ish data points). Let's put this on a more reasonable scale for analysis:
+
+```{r}
+# First we put the data on a log scale.
+# We do this once to save computing time, instead of for each axis.
+meancounts2 <- log10(meancounts)
+
+
+# Axes are assigned to make our code a little less convoluted.
+xax_toy2 <- meancounts2$control.mean 
+yax_toy2 <- meancounts2$treated.mean
+
+# Now we plot
+plot(xax_toy2,yax_toy2, main = "Toy RNASeq Analysis: Treated vs. Controls", 
+     xlab = "Log10 of Controls, Mean Counts", 
+     ylab = "Log10 of Treated, Mean Counts")
+```
+
+Now let's look for *strong candidates for differential expression* by taking the log2-fold change in expression between cotnrol and mean.
+
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/
+                            meancounts[,"control.mean"])
+head(meancounts)
+```
+
+Unfortunately, this gives us NaN and -Inf, or division by zero and log(0) results, respectively. This is because some genes won't be expressed at all in the control condition (NaN), while others are completely unexpressed in the treatment conditions (-Inf).
+
+So, let's filter that garbage out:
+
+```{r}
+zero.vals <- which(meancounts[,1:2] == 0, arr.ind = T)
+
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+```
+
+Q4) arrayInd is a logical argument that will specify whether the indices of the array should be returned or not. Since it's true, this has the effect of returning the indices that are equal to 0.
+
+Now let's filter for the samples that are *differentially expressed*:
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+```
+
+Q5) Number of upregulated and downregulated genes. This can be found by taking the length of each vector above:
+
+```{r}
+print(paste("Up-regulated genes:", sum(up.ind)))
+
+print(paste("Down-regulated genes:", sum(down.ind)))
+```
+
+## Adding Annotation Data
+
+Let's put our annotation data into a data.frame
+
+```{r}
+anno <- read.csv("https://bioboot.github.io/bimm143_W18/class-material/annotables_grch38.csv")
+head(anno)
+```
+
+Q6) Merging data.frames:
+
+```{r}
+annocounts <- merge(x = mycounts, y = anno, by.x = "row.names", by.y = "ensgene")
+```
+
+Alternatively, we can use bioconductor annotation. Let's load the packages
+
+```{r}
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+```
+
+Let's look at the organism package
+
+```{r}
+columns(org.Hs.eg.db)
+```
+
+Let's add some of this to our mycounts data.frame:
+
+```{r}
+mycounts$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(mycounts),
+                     column="SYMBOL",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+```
+
+Q7: Adding UniProt and Entrez data:
+
+```{r}
+#Adding Entrez IDs
+mycounts$entrez <- mapIds(org.Hs.eg.db,
+                     keys=row.names(mycounts),
+                     column="ENTREZID",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+# Adding UniProt
+mycounts$uniprot <- mapIds(org.Hs.eg.db,
+                     keys=row.names(mycounts),
+                     column="UNIPROT",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+```
+
+
+Q8) Differentially Expressed Genes
+
+```{r}
+View(mycounts[mycounts$log2fc > 2 | mycounts$log2fc < -2, ])
+```
+
+This seems reasonable to trust, since its the same way of obtaining our data as we did before.
+
+Let's look at upregulated genes again:
+
+```{r}
+head(mycounts[up.ind,])
+```
+
+
+## DESeq2 Analysis
+
+Let's start off by loading the relevant package into RStudio
+
+```{r}
+library(DESeq2)
+citation("DESeq2")
+```
+
+Now let's import our data using 'DESeqDataSetFromMatrix' and specify which parts of the dataset correspond to counts, metadata, and what the treatment column is. This will turn our RNASeq data into something DESeq2 can read:
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex,
+                              tidy=TRUE)
+dds
+```
+
+Now let's start putting this data into the DESeq2 pipeline.
+
+First let' try examining the objects we obtain before the data is in the pipeline:
+
+```{r}
+sizeFactors(dds)
+dispersions(dds)
+# results(dds)
+```
+
+Notice that there is no output generated, since the objects don't exist. Running 'results' on an empty dataset generates an error.
+
+What we need to do is actually run our DESeq analysis. We'll do this using 'DESeq', passing dds as an argument and assigning it back to dds
+
+```{r}
+dds <- DESeq(dds)
+```
+
+Now let's look at our DESeq results:
+
+```{r}
+res <- results(dds)
+
+res
+```
+
+Let's summarize these results:
+
+```{r}
+summary(res)
+```
+
+Let's order our data by the smallest p-values:
+
+```{r}
+resOrdered <- res[order(res$pvalue),]
+```
+
+Now let's compute our results with an alpha of 0.05:
+
+```{r}
+res05 <- results(dds, alpha = 0.05)
+summary(res05)
+```
+
+```{r}
+resSig05 <- subset(as.data.frame(res), padj < 0.05)
+nrow(resSig05)
+```
+
+Q9) At 0.05, we have 2181 significant results. How many results are significant at an alpha of 0.01? At alpha = 0.01, we only have 1437 significant results.
+
+```{r}
+res01 <- results(dds, alpha = 0.01)
+summary(res01)
+
+resSig01 <- subset(as.data.frame(res), padj <0.01)
+nrow(resSig01)
+```
+
+Q10) Now let's annotate res01:
+
+```{r}
+# Adding protein/gene name symbols
+res01$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res01),
+                     column="SYMBOL",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+# Adding Entrez IDs
+res01$entrez <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res01),
+                     column="UNIPROT",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+# Adding UniProt
+res01$uniprot <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res01),
+                     column="UNIPROT",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+head(res01)
+resSig01 <- subset(as.data.frame(res), padj <0.01)
+
+```
+
+Now lets arrange and view the results by adjusted p-value:
+
+```{r}
+ord <- order( resSig01$padj )
+# View(res01[ord,]) # Remove comment pound to run View function
+head(resSig01[ord,])
+```
+
+Let's write these annotated, ordered, significant results to a .csv file:
+
+```{r}
+write.csv(resSig01[ord,], "signif01_results.csv")
+```
+
+## Data Visualization
+
+Let's start off by looking at the gene 'CRISPLD2'. Let's extract that row using grep() for that keyword in the "symbol" column:
+
+```{r}
+i <- grep("CRISPLD2", resSig01$symbol)
+resSig01[i, ]
+```
+
+
+
+
+
+
