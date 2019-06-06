@@ -1,6 +1,6 @@
 ---
 title: 'Lecture 06: R Functions'
-author: "Matt “epic fortnite gamer” Demelo"
+author: "Matt Demelo"
 date: "4/18/2019"
 output: html_document
 ---
