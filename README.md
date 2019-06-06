@@ -25,7 +25,6 @@ This repository contains my coursework for [BIMM 143 SP19](https://bioboot.githu
 
 - [**Machine Learning, Clustering, and Principal Component Analysis** (Lecture 09)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_09-PCA_and_Clustering)
 
-- [**Introduction to Structural Bioinformatics** (Lecture 11)]()
 
 
 
@@ -42,7 +41,6 @@ This repository contains my coursework for [BIMM 143 SP19](https://bioboot.githu
 
 - [**Analysis of Biological Networks with Cytoscape** (Lecture 17)](https://bioboot.github.io/bimm143_S19/lectures/#17)
 
-- [**Genomics and Cancer** (Lecture 18)]()
 
 
 
