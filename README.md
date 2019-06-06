@@ -24,7 +24,7 @@ This repository contains my coursework for [BIMM 143 SP19](https://bioboot.githu
 
 - [*Introduction to Machine Learning for Bioinformatics* (Lecture 08)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_08-MachineLearning)
 
-- [*Machine Learning, Clustering, and Principal Component Analysis** (Lecture 09)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_09-PCA_and_Clustering)
+- [*Machine Learning, Clustering, and Principal Component Analysis* (Lecture 09)](https://github.com/matt-demelo/BIMM-143/tree/master/Lecture_09-PCA_and_Clustering)
 
 
 
