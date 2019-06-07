@@ -48,7 +48,7 @@ This repository contains my coursework for [BIMM 143 SP19](https://bioboot.githu
 #### *Gene Annotation Project: 'Find-A-Gene'*
     Annotation of a novel gene using bioinformatic techniques learned in the course.
     
-- [*Identification of *entD* homolog in *Shigella dysenteriae* strain ATCC 12039*](https://github.com/matt-demelo/BIMM-143/tree/master/Find_a_Gene)
+- [*Identification of entD homolog in Shigella dysenteriae strain ATCC 12039*](https://github.com/matt-demelo/BIMM-143/tree/master/Find_a_Gene)
 
 
 
